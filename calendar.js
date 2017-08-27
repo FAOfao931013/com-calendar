@@ -2,6 +2,9 @@
 //当前日期
 var currentDate = new Date();
 
+//选中周的最后一天
+var weekLastDay = new Date();
+
 //是否接受提前交车
 var acceptGetCar = false;
 
@@ -13,6 +16,11 @@ var dayDayEnd = 16;
 var weekDayBegin = 5;
 var weekDayEnd = 25;
 
+//默认的日期
+var defaultDay = 10;
+//默认的月份
+var defaultMonth = '';
+
 //自定义选择月份范围
 var monthBegin = 8;
 var monthEnd = 10;
@@ -20,6 +28,95 @@ var monthEnd = 10;
 //按天选择或是按周选择
 var dayChosed = true;
 var weekChosed = false;
+
+//是否禁用提交按钮
+function disSubmitBtn() {
+    var month =  currentDate.getMonth() + 1;
+
+    if (month >= monthBegin && month <= monthEnd) {
+        $('#showPara').attr('disabled', true);
+    }
+}
+
+//监听是否接受提前交车
+$('#getCar').on('change', function() {
+    acceptGetCar = $(this).prop('checked');
+});
+
+//初始生成日历
+newCalendar();
+
+//触发默认日期事件
+function defaultDaytHandler() {
+    $(`[id$=${defaultDay}][onclick*='generateToday']`).click();
+}
+
+defaultDaytHandler();
+
+//默认选中第一周
+function defaultWeekHandler() {
+    $('#dateTable tr .date').first().click();
+}
+
+// defaultWeekHandler();
+
+//移除空的日期
+function removeEmpty() {
+    if ($('#dateTable tr:last-child td').text() == '') {
+        $('#dateTable tr:last-child td').remove();
+    }
+}
+
+removeEmpty();
+
+//日历主体部分
+function newCalendar() {
+    var month = defaultMonth ? defaultMonth : currentDate.getMonth();
+    var year = currentDate.getFullYear();
+    var date = currentDate.getDate();
+    var thisMonthDay = new Date(year, month, 1);
+    var thisMonthFirstDay = thisMonthDay.getDay();
+    var thisMonthFirstDate = new Date(year, month, -thisMonthFirstDay);
+    generateNav(year, month); //生成导航区域
+    generateTable(thisMonthFirstDate); //生成日历主体的日期区域
+    currentDate.setYear(year);
+    currentDate.setMonth(month);
+    return currentDate;
+}
+
+//上个月切换按钮监听
+var btnLastMonth = $('#lastMonth');
+btnLastMonth.on("click", function() {
+    var currentMonth = currentDate.getMonth();
+    currentDate.setMonth(--currentMonth);
+    defaultMonth = '';
+    newCalendar();
+    removeEmpty();
+    disSubmitBtn();
+
+    if (dayChosed) {
+        defaultDaytHandler();
+    } else {
+        defaultWeekHandler();
+    }
+});
+
+//下个月切换按钮监听
+var btnNextMonth = $('#nextMonth');
+btnNextMonth.on("click", function() {
+    var currentMonth = currentDate.getMonth();
+    currentDate.setMonth(++currentMonth);
+    defaultMonth = '';
+    newCalendar();
+    removeEmpty();
+    disSubmitBtn();
+
+    if (dayChosed) {
+        defaultDaytHandler();
+    } else {
+        defaultWeekHandler();
+    }
+});
 
 //按天或按周选择按钮
 var csd = $('.choose-day');
@@ -34,68 +131,22 @@ csd.on('click', function() {
 
     newCalendar();
     removeEmpty();
+    defaultDaytHandler();
 });
 
 csw.on('click', function() {
     weekChosed = true;
     dayChosed = false;
 
+    finChosed = 'byWeek';
+
     $(this).addClass('choose-way');
     csd.removeClass('choose-way');
 
     newCalendar();
     removeEmpty();
+    defaultWeekHandler();
 });
-
-//监听是否接受提前交车
-$('#getCar').on('change', function() {
-    acceptGetCar = $(this).prop('checked');
-});
-
-//初始生成日历
-newCalendar();
-
-//移除空的日期
-function removeEmpty() {
-    if ($('#dateTable tr:last-child td').text() == '') {
-        $('#dateTable tr:last-child td').remove();
-    }
-}
-
-removeEmpty();
-
-//上个月切换按钮监听
-var btnLastMonth = $('#lastMonth');
-btnLastMonth.on("click", function() {
-    var currentMonth = currentDate.getMonth();
-    currentDate.setMonth(--currentMonth);
-    newCalendar();
-    removeEmpty();
-});
-
-//下个月切换按钮监听
-var btnNextMonth = $('#nextMonth');
-btnNextMonth.on("click", function() {
-    var currentMonth = currentDate.getMonth();
-    currentDate.setMonth(++currentMonth);
-    newCalendar();
-    removeEmpty();
-});
-
-//日历主体部分
-function newCalendar() {
-    var month = currentDate.getMonth();
-    var year = currentDate.getFullYear();
-    var date = currentDate.getDate();
-    var thisMonthDay = new Date(year, month, 1);
-    var thisMonthFirstDay = thisMonthDay.getDay();
-    var thisMonthFirstDate = new Date(year, month, -thisMonthFirstDay);
-    generateNav(year, month); //生成导航区域
-    generateTable(thisMonthFirstDate); //生成日历主体的日期区域
-    currentDate.setYear(year);
-    currentDate.setMonth(month);
-    return currentDate;
-}
 
 //设定导航区域
 function generateNav(year, month) {
@@ -111,64 +162,36 @@ function isAddWeekHandler(weekday, dateString) {
         case 1:
             var endDay = getWantDay('next', dateString, 6).getDate();
 
-            if (endDay >= weekDayBegin && endDay <= weekDayEnd) {
-                return true;
-            } else {
-                return false;
-            }
+            return endDay >= weekDayBegin && endDay <= weekDayEnd;
         case 2:
             var beginDay = getWantDay('before', dateString, 1).getDate();
             var endDay = getWantDay('next', dateString, 5).getDate();
 
-            if ((beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd)) {
-                return true;
-            } else {
-                return false;
-            }
+            return (beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd);
         case 3:
             var beginDay = getWantDay('before', dateString, 2).getDate();
             var endDay = getWantDay('next', dateString, 4).getDate();
 
-            if ((beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd)) {
-                return true;
-            } else {
-                return false;
-            }
+            return (beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd);
         case 4:
             var beginDay = getWantDay('before', dateString, 3).getDate();
             var endDay = getWantDay('next', dateString, 3).getDate();
 
-            if ((beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd)) {
-                return true;
-            } else {
-                return false;
-            }
+            return (beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd);
         case 5:
             var beginDay = getWantDay('before', dateString, 4).getDate();
             var endDay = getWantDay('next', dateString, 2).getDate();
 
-            if ((beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd)) {
-                return true;
-            } else {
-                return false;
-            }
+            return (beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd);
         case 6:
             var beginDay = getWantDay('before', dateString, 5).getDate();
             var endDay = getWantDay('next', dateString, 1).getDate();
 
-            if ((beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd)) {
-                return true;
-            } else {
-                return false;
-            }
+            return (beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd);
         case 0:
             var beginDay = getWantDay('before', dateString, 6).getDate();
 
-            if (beginDay >= weekDayBegin && beginDay <= weekDayEnd) {
-                return true;
-            } else {
-                return false;
-            }
+            return beginDay >= weekDayBegin && beginDay <= weekDayEnd;
     }
 }
 
@@ -261,12 +284,9 @@ function formatDate(date) {
     return date.split('/').join('');
 };
 
-
 //设置当前日期
 function setCurrentDate(dateString) {
-    if (dateString) { //若传递了参数，根据参数设定值
-        currentDate = new Date(dateString);
-    }
+    currentDate = new Date(dateString);
 }
 
 //清除按天样式
@@ -318,10 +338,6 @@ function generateWeek(dateString) {
 
     //周几
     var weekday = new Date(dateString).getDay();
-
-    //选中周的最后一天
-    var weekLastDay;
-
 
     //能否设置当前日期
     var canSetCurDay = false;
@@ -463,3 +479,14 @@ function generateWeek(dateString) {
     //每次选中周的最后一天
     console.log(weekLastDay.toLocaleDateString());
 }
+
+$('#showPara').on('click', function() {
+    alert('按天或者按周' + '按天 ' + dayChosed);
+    alert('按天或者按周' + '按周 ' + weekChosed);
+
+    alert('是否接受提前交车 ' + acceptGetCar);
+
+    alert('按天时选中的日期 ' + currentDate.toLocaleDateString());
+
+    alert('按周时的最后一天 ' + weekLastDay.toLocaleDateString());
+})
