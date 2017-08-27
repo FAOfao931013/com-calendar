@@ -6,26 +6,48 @@
     margin: 0;
 }
 
-.calendar-wrap {
-    margin: 0px 230px;
+.flex-center {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.margin-bottom {
+    margin-bottom: 20px;
+}
+
+.choose-date {
+    padding: 20px;
+}
+
+.main-calendar {
+    margin: 0px 360px;
+    background-color: #eeeeee;
 }
 
 #calendar {
     width: 100%;
-    background-color: #eeeeee;
 }
 
 td {
     position: relative;
-    left: 0;
     text-align: center;
-    margin-bottom: 1px;
+    min-width: 60px;
+    height: 80px;
 }
 
 .todayTd,
-.todayTd div {
+.weekTd,
+.todayTd div,
+.weekTd div {
     background-color: #ff2e2e;
     color: #fff;
+}
+
+.weekTd {
+    border: solid 1px #fff;
+    border-top: none;
+    border-bottom: none;
 }
 
 .date {
