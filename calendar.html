@@ -8,31 +8,40 @@
 </head>
 <body>
     <div class="main-calendar">
-        <div class="choose-date">
-            <div class="flex-center margin-bottom">
-                <span>选择提车时间</span>
-                <span class="choose-week default-choose">按周选择</span>
-                <span class="choose-day default-choose choose-way">按天选择</span>
-                <span>
-                    <input id="getCar" type="checkbox">
-                    <span>可接受提前交车</span>
-                </span>
-            </div>
+        <div class="choose-wap">
+            <span class="span-left">选择提车时间</span>
 
-            <div class="flex-center margin-bottom">
-                <span>
-                    <label id="year"></label>
-                    <label>年</label>
-                    /
-                    <label id="month"></label>
-                    <label>月</label>
+            <span class="span-middle">
+                <span class="choose-week default-choose">
+                    按周选择
+                    <img class="tip-img" src="./imgs/tip.png" />
                 </span>
 
-                <span>
-                    <button id="lastMonth"><</button>
-                    <button id="nextMonth">></button>
+                <span class="choose-day default-choose choose-way">
+                    按天选择
+                    <img class="tip-img" src="./imgs/tip.png" />
                 </span>
-            </div>
+            </span>
+
+            <span class="span-right">
+                <input id="getCar" type="checkbox">
+                <span>可接受提前交车</span>
+            </span>
+        </div>
+
+        <div class="choose-month">
+            <span class="float-left">
+                <label id="year"></label>
+                <label>年</label>
+                /
+                <label id="month"></label>
+                <label>月</label>
+            </span>
+
+            <span class="float-right">
+                <button id="lastMonth"><</button>
+                <button id="nextMonth">></button>
+            </span>
         </div>
 
         <div class="calendar-wrap">

@@ -6,18 +6,46 @@
     margin: 0;
 }
 
-.flex-center {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.float-left {
+    float: left;
+}
+
+.float-right {
+    float: right;
+}
+
+.span-left {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.span-middle {
+    position: absolute;
+    left: 46%;
+    transform: translate(-50%, -50%);
+}
+
+.span-right {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .margin-bottom {
     margin-bottom: 20px;
 }
 
-.choose-date {
-    padding: 20px;
+.choose-wap {
+    position: relative;
+    padding: 40px 0;
+    margin: 0 20px;
+}
+
+.choose-month {
+    padding: 0 20px 40px;
 }
 
 .main-calendar {
@@ -88,4 +116,16 @@ thead tr td {
 .choose-way {
     color: #000;
     border: solid 2px #e4393c;
+    position: relative;
+}
+
+.choose-way .tip-img {
+    display: block;
+}
+
+.tip-img {
+    display: none;
+    position: absolute;
+    right: 0;
+    bottom: 0;
 }
