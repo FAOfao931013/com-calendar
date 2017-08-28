@@ -9,7 +9,7 @@ var weekLastDay = new Date();
 var acceptGetCar = false;
 
 //按天时自定义选择天数范围
-var dayDayBegin = 3;
+var dayDayBegin = 1;
 var dayDayEnd = 16;
 
 //按周时自定义选择天数范围
@@ -17,7 +17,7 @@ var weekDayBegin = 5;
 var weekDayEnd = 25;
 
 //默认的日期
-var defaultDay = 10;
+var defaultDay = 1;
 //默认的月份
 var defaultMonth = '';
 
@@ -31,7 +31,7 @@ var weekChosed = false;
 
 //是否禁用提交按钮
 function disSubmitBtn() {
-    var month =  currentDate.getMonth() + 1;
+    var month = currentDate.getMonth() + 1;
 
     if (month < monthBegin || month > monthEnd) {
         $('#showPara').attr('disabled', true);
@@ -50,7 +50,7 @@ newCalendar();
 
 //触发默认日期事件
 function defaultDaytHandler() {
-    $(`[id$=${defaultDay}][onclick*='generateToday']`).click();
+    $(`[id$=${defaultDay}][onclick*='generateToday']`).first().click();
 }
 
 defaultDaytHandler();
@@ -98,8 +98,6 @@ btnLastMonth.on("click", function() {
 
     if (dayChosed) {
         defaultDaytHandler();
-    } else {
-        defaultWeekHandler();
     }
 });
 
@@ -115,8 +113,6 @@ btnNextMonth.on("click", function() {
 
     if (dayChosed) {
         defaultDaytHandler();
-    } else {
-        defaultWeekHandler();
     }
 });
 
@@ -147,7 +143,7 @@ csw.on('click', function() {
 
     newCalendar();
     removeEmpty();
-    defaultWeekHandler();
+    // defaultWeekHandler();
 });
 
 //设定导航区域
@@ -251,9 +247,12 @@ function generateTable(firstDate) {
                     if (month >= monthBegin && month <= monthEnd) {
                         //判断日期范围
                         if (date >= weekDayBegin && date <= weekDayEnd) {
-
-                            //判断是否添加周处理事件
-                            if (isAddWeekHandler(new Date(dateInfo).getDay(), dateInfo)) {
+                            var weekday = new Date(dateInfo).getDay()
+                                //判断是否添加周处理事件
+                            if (isAddWeekHandler(weekday, dateInfo)) {
+                                if (weekday == 0) {
+                                    $(newDate).append("<div>交车</div>");
+                                }
                                 newDate.setAttribute("class", "date");
                                 //设置点击事件，防止被解释为数字，用转义字符加上双引号
                                 newDate.setAttribute("onclick", "generateWeek(\"" + dateInfo + "\")");
@@ -476,19 +475,26 @@ function generateWeek(dateString) {
     setCurrentDate(dateString);
 
     //每次选中的日期
-    console.log(currentDate.toLocaleDateString());
+    // console.log(currentDate.toLocaleDateString());
 
     //每次选中周的最后一天
     console.log(weekLastDay.toLocaleDateString());
 }
 
 $('#showPara').on('click', function() {
-    alert('按天或者按周' + '按天 ' + dayChosed);
-    alert('按天或者按周' + '按周 ' + weekChosed);
+    if (dayChosed) {
+        alert('按天');
+        alert('按天时选中的日期 ' + currentDate.toLocaleDateString());
+    } else if (weekChosed) {
+        alert('按周');
+        alert('按周时的最后一天 ' + weekLastDay.toLocaleDateString());
+    }
 
-    alert('是否接受提前交车 ' + acceptGetCar);
+    if (acceptGetCar) {
+        alert('接受提前交车');
+    } else {
+        alert('不接受提前交车');
 
-    alert('按天时选中的日期 ' + currentDate.toLocaleDateString());
+    }
 
-    alert('按周时的最后一天 ' + weekLastDay.toLocaleDateString());
 })
