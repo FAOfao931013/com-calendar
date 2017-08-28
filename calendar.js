@@ -33,8 +33,10 @@ var weekChosed = false;
 function disSubmitBtn() {
     var month =  currentDate.getMonth() + 1;
 
-    if (month >= monthBegin && month <= monthEnd) {
+    if (month < monthBegin || month > monthEnd) {
         $('#showPara').attr('disabled', true);
+    } else {
+        $('#showPara').attr('disabled', false);
     }
 }
 
