@@ -108,8 +108,8 @@ thead tr td {
     padding: 8px 18px;
     display: inline-block;
     background-color: #fff;
-    color: #999999;
-    border: solid 1px #999999;
+    color: #999;
+    border: solid 1px #999;
     font-size: 16px;
 }
 
@@ -128,4 +128,17 @@ thead tr td {
     position: absolute;
     right: 0;
     bottom: 0;
+}
+
+.ch-month {
+    cursor: pointer;
+    font-size: 24px;
+}
+
+.ch-month:hover {
+    color: #888;
+}
+
+#month {
+    color: #888;
 }
