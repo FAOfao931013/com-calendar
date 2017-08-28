@@ -23,7 +23,7 @@ var defaultMonth = '';
 
 //自定义选择月份范围
 var monthBegin = 8;
-var monthEnd = 10;
+var monthEnd = 8;
 
 //按天选择或是按周选择
 var dayChosed = true;
