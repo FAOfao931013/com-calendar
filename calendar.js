@@ -510,7 +510,7 @@ var app = {
     weekChosed: weekChosed
 };
 
-app.calendar('2017-08-03', '2017-09-23');
+app.calendar('2017-08-03', '2017-11-9');
 
 // module.exports = app;
 // });
