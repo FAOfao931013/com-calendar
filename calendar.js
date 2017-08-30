@@ -361,10 +361,10 @@ function generateWeek(dateString) {
     setCurrentDate(weekLastDay);
 
     //每次选中的日期
-    // console.log(currentDate.toLocaleDateString());
+    console.log(currentDate.toLocaleDateString());
 
     //每次选中周的最后一天
-    console.log(weekLastDay.toLocaleDateString());
+    // console.log(weekLastDay.toLocaleDateString());
 }
 
 //启用提交按钮
@@ -474,6 +474,7 @@ function removeEmpty() {
 //创建新日历
 function newCalendar() {
     var month = currentDate.getMonth();
+    // var month = dateBegin.getMonth();
     var year = currentDate.getFullYear();
     var date = currentDate.getDate();
     var thisMonthDay = new Date(year, month, 1);
@@ -493,6 +494,7 @@ var app = {
         //自定义选择日期范围
         dateBegin = new Date(resDateBegin.split('-').join('/'));
         dateEnd = new Date(resDateEnd.split('-').join('/'));
+        currentDate = dateBegin;
 
         //初始生成日历
         newCalendar();
@@ -502,14 +504,13 @@ var app = {
         removeEmpty();
     },
 
-    currentDate: currentDate.toLocaleDateString(),
-    weekLastDay: weekLastDay.toLocaleDateString(),
+    selectedDay: currentDate.toLocaleDateString(),
     acceptGetCar: acceptGetCar,
     dayChosed: dayChosed,
     weekChosed: weekChosed
 };
 
-app.calendar('2017-08-03', '2017-11-9');
+app.calendar('2017-09-03', '2017-11-9');
 
 // module.exports = app;
 // });
