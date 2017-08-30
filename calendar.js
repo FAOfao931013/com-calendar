@@ -109,40 +109,6 @@ function defaultDaytHandler() {
     }
 }
 
-//移除空的日期
-function removeEmpty() {
-    if ($('#dateTable tr:last-child td').text() == '') {
-        $('#dateTable tr:last-child td').remove();
-    }
-}
-
-//日历主体部分
-function newCalendar() {
-    var month = currentDate.getMonth();
-    var year = currentDate.getFullYear();
-    var date = currentDate.getDate();
-    var thisMonthDay = new Date(year, month, 1);
-    var thisMonthFirstDay = thisMonthDay.getDay();
-    var thisMonthFirstDate = new Date(year, month, -thisMonthFirstDay - 6);
-    generateNav(year, month); //生成导航区域
-    generateTable(thisMonthFirstDate); //生成日历主体的日期区域
-    currentDate.setYear(year);
-    currentDate.setMonth(month);
-    //清空无日期区域
-    if ($('#dateTable tr:first-child td').text() == '') {
-        $('#dateTable tr:first-child td').remove();
-    }
-    return currentDate;
-}
-
-//设定导航区域
-function generateNav(year, month) {
-    var navYear = document.getElementById("year");
-    var navMonth = document.getElementById("month");
-    navYear.innerText = year.toString();
-    navMonth.innerText = (month + 1).toString();
-}
-
 //获取前或后天数的日期
 function getWantDay(status, today, day) {
     if (status == 'next') {
@@ -192,87 +158,6 @@ function isAddWeekHandler(weekday, firstDate) {
             return beginDate - dateBegin >= 0;
     }
 }
-
-//日历表格
-function generateTable(firstDate) {
-    //获取日历日期部分Node
-    var dateTable = document.getElementById("dateTable");
-    //若不是第一次生成，则需要把此前生成的日历去掉
-    while (dateTable.firstChild) {
-        dateTable.removeChild(dateTable.firstChild);
-    }
-    var date = firstDate.getDate();
-
-    for (var i = 0; i < 7; i++) {
-        var newRow = document.createElement("tr");
-
-        for (var j = 0; j < 7; j++) {
-            var newDate = document.createElement("td");
-
-            //获取日期信息
-            firstDate.setDate(++date);
-
-            //日
-            date = firstDate.getDate();
-
-            //月
-            month = firstDate.getMonth() + 1;
-
-            var dateInfo = firstDate.toLocaleDateString();
-
-            //设置Node的id，便于后期操作
-            newDate.setAttribute("id", formatDate(dateInfo));
-
-            newDate.setAttribute("data-dateInfo", dateInfo);
-
-            //只显示当月的日期
-            if ($('#month').text() == month) {
-                newDate.innerText = date;
-
-                //判断按天还是按周
-                if (dayChosed) {
-                    if (firstDate - dateBegin >= 0 && firstDate - dateEnd <= 0) {
-                        newDate.setAttribute("class", "date");
-
-                        $(newDate).on('click', function() {
-                            generateToday($(this).attr('data-dateInfo'));
-                        });
-                    } else {
-                        newDate.setAttribute("class", "date-disabled");
-                    }
-                } else {
-                    var weekday = firstDate.getDay();
-
-                    if (firstDate - dateBegin >= 0 && firstDate - dateEnd <= 0) {
-                        if (isAddWeekHandler(weekday, firstDate)) {
-                            if (weekday == 0) {
-                                $(newDate).append("<div>交车</div>");
-                            }
-
-                            newDate.setAttribute("class", "date");
-
-                            $(newDate).on('click', function() {
-                                generateWeek($(this).attr('data-dateInfo'));
-                            });
-                        } else {
-                            newDate.setAttribute("class", "date-disabled");
-                        }
-
-                    } else {
-                        newDate.setAttribute("class", "date-disabled");
-                    }
-                }
-            } else {
-                newDate.innerText = '';
-            }
-
-            newRow.appendChild(newDate);
-        }
-
-        dateTable.appendChild(newRow);
-    }
-}
-
 
 //设置当前日期
 function setCurrentDate(dateString) {
@@ -485,6 +370,120 @@ function generateWeek(dateString) {
 //启用提交按钮
 function changeHasChosedDate(status) {
     hasChosedDate = status;
+}
+
+//设定导航区域
+function generateNav(year, month) {
+    var navYear = document.getElementById("year");
+    var navMonth = document.getElementById("month");
+    navYear.innerText = year.toString();
+    navMonth.innerText = (month + 1).toString();
+}
+
+//创建日历表格
+function generateTable(firstDate) {
+    //获取日历日期部分Node
+    var dateTable = document.getElementById("dateTable");
+    //若不是第一次生成，则需要把此前生成的日历去掉
+    while (dateTable.firstChild) {
+        dateTable.removeChild(dateTable.firstChild);
+    }
+    var date = firstDate.getDate();
+
+    for (var i = 0; i < 7; i++) {
+        var newRow = document.createElement("tr");
+
+        for (var j = 0; j < 7; j++) {
+            var newDate = document.createElement("td");
+
+            //获取日期信息
+            firstDate.setDate(++date);
+
+            //日
+            date = firstDate.getDate();
+
+            //月
+            month = firstDate.getMonth() + 1;
+
+            var dateInfo = firstDate.toLocaleDateString();
+
+            //设置Node的id，便于后期操作
+            newDate.setAttribute("id", formatDate(dateInfo));
+
+            newDate.setAttribute("data-dateInfo", dateInfo);
+
+            //只显示当月的日期
+            if ($('#month').text() == month) {
+                newDate.innerText = date;
+
+                //判断按天还是按周
+                if (dayChosed) {
+                    if (firstDate - dateBegin >= 0 && firstDate - dateEnd <= 0) {
+                        newDate.setAttribute("class", "date");
+
+                        $(newDate).on('click', function() {
+                            generateToday($(this).attr('data-dateInfo'));
+                        });
+                    } else {
+                        newDate.setAttribute("class", "date-disabled");
+                    }
+                } else {
+                    var weekday = firstDate.getDay();
+
+                    if (firstDate - dateBegin >= 0 && firstDate - dateEnd <= 0) {
+                        if (isAddWeekHandler(weekday, firstDate)) {
+                            if (weekday == 0) {
+                                $(newDate).append("<div>交车</div>");
+                            }
+
+                            newDate.setAttribute("class", "date");
+
+                            $(newDate).on('click', function() {
+                                generateWeek($(this).attr('data-dateInfo'));
+                            });
+                        } else {
+                            newDate.setAttribute("class", "date-disabled");
+                        }
+
+                    } else {
+                        newDate.setAttribute("class", "date-disabled");
+                    }
+                }
+            } else {
+                newDate.innerText = '';
+            }
+
+            newRow.appendChild(newDate);
+        }
+
+        dateTable.appendChild(newRow);
+    }
+}
+
+//移除空的日期
+function removeEmpty() {
+    if ($('#dateTable tr:last-child td').text() == '') {
+        $('#dateTable tr:last-child td').remove();
+    }
+
+    if ($('#dateTable tr:first-child td').text() == '') {
+        $('#dateTable tr:first-child td').remove();
+    }
+}
+
+//创建新日历
+function newCalendar() {
+    var month = currentDate.getMonth();
+    var year = currentDate.getFullYear();
+    var date = currentDate.getDate();
+    var thisMonthDay = new Date(year, month, 1);
+    var thisMonthFirstDay = thisMonthDay.getDay();
+    var thisMonthFirstDate = new Date(year, month, -thisMonthFirstDay - 6);
+    generateNav(year, month); //生成导航区域
+    generateTable(thisMonthFirstDate); //生成日历主体的日期区域
+    currentDate.setYear(year);
+    currentDate.setMonth(month);
+    return currentDate;
 }
 
 var app = {
