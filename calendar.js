@@ -1,4 +1,5 @@
 /*eslint-disable */
+// define(function(require, exports, module) {
 //当前日期
 var currentDate = new Date();
 
@@ -8,96 +9,41 @@ var weekLastDay = new Date();
 //是否接受提前交车
 var acceptGetCar = false;
 
-//按天时自定义选择天数范围
-var dayDayBegin = 1;
-var dayDayEnd = 16;
-
-//按周时自定义选择天数范围
-var weekDayBegin = 5;
-var weekDayEnd = 25;
-
 //默认的日期
-var defaultDay = 1;
-//默认的月份
-var defaultMonth = '';
+var defaultDay;
 
-//自定义选择月份范围
-var monthBegin = 8;
-var monthEnd = 8;
+//自定义选择日期范围
+var dateBegin;
+var dateEnd;
 
 //按天选择或是按周选择
 var dayChosed = true;
 var weekChosed = false;
 
-//是否禁用提交按钮
-function disSubmitBtn() {
-    var month = currentDate.getMonth() + 1;
-
-    if (month < monthBegin || month > monthEnd) {
-        $('#showPara').attr('disabled', true);
-    } else {
-        $('#showPara').attr('disabled', false);
-    }
-}
+//是否选择了日期
+var hasChosedDate = false;
 
 //监听是否接受提前交车
 $('#getCar').on('change', function() {
     acceptGetCar = $(this).prop('checked');
 });
 
-//初始生成日历
-newCalendar();
-
-//触发默认日期事件
-function defaultDaytHandler() {
-    $(`[id$=${defaultDay}][onclick*='generateToday']`).first().click();
-}
-
-defaultDaytHandler();
-
-//默认选中第一周
-function defaultWeekHandler() {
-    $('#dateTable tr .date').first().click();
-}
-
-// defaultWeekHandler();
-
-//移除空的日期
-function removeEmpty() {
-    if ($('#dateTable tr:last-child td').text() == '') {
-        $('#dateTable tr:last-child td').remove();
-    }
-}
-
-removeEmpty();
-
-//日历主体部分
-function newCalendar() {
-    var month = defaultMonth ? defaultMonth : currentDate.getMonth();
-    var year = currentDate.getFullYear();
-    var date = currentDate.getDate();
-    var thisMonthDay = new Date(year, month, 1);
-    var thisMonthFirstDay = thisMonthDay.getDay();
-    var thisMonthFirstDate = new Date(year, month, -thisMonthFirstDay);
-    generateNav(year, month); //生成导航区域
-    generateTable(thisMonthFirstDate); //生成日历主体的日期区域
-    currentDate.setYear(year);
-    currentDate.setMonth(month);
-    return currentDate;
-}
-
 //上个月切换按钮监听
 var btnLastMonth = $('#lastMonth');
 btnLastMonth.on("click", function() {
     var currentMonth = currentDate.getMonth();
-    currentDate.setMonth(--currentMonth);
-    defaultMonth = '';
+
+    currentDate.setFullYear(currentDate.getFullYear(), --currentMonth, 1);
+
     newCalendar();
     removeEmpty();
-    disSubmitBtn();
 
     if (dayChosed) {
         defaultDaytHandler();
+    } else {
+        if (weekLastDay) {
+            $('#' + formatDate(weekLastDay.toLocaleDateString())).click();
+        }
     }
 });
 
@@ -105,14 +51,18 @@ btnLastMonth.on("click", function() {
 var btnNextMonth = $('#nextMonth');
 btnNextMonth.on("click", function() {
     var currentMonth = currentDate.getMonth();
-    currentDate.setMonth(++currentMonth);
-    defaultMonth = '';
+
+    currentDate.setFullYear(currentDate.getFullYear(), ++currentMonth, 1);
+
     newCalendar();
     removeEmpty();
-    disSubmitBtn();
 
     if (dayChosed) {
         defaultDaytHandler();
+    } else {
+        if (weekLastDay) {
+            $('#' + formatDate(weekLastDay.toLocaleDateString())).click();
+        }
     }
 });
 
@@ -136,15 +86,54 @@ csw.on('click', function() {
     weekChosed = true;
     dayChosed = false;
 
-    finChosed = 'byWeek';
+    //清除一周最后一天
+    weekLastDay = '';
 
     $(this).addClass('choose-way');
     csd.removeClass('choose-way');
 
     newCalendar();
     removeEmpty();
-    // defaultWeekHandler();
+    changeHasChosedDate(false);
 });
+
+//格式化日期
+function formatDate(date) {
+    return date.split('/').join('');
+}
+
+//触发默认日期事件
+function defaultDaytHandler() {
+    if (defaultDay) {
+        $('#' + defaultDay).click();
+    }
+}
+
+//移除空的日期
+function removeEmpty() {
+    if ($('#dateTable tr:last-child td').text() == '') {
+        $('#dateTable tr:last-child td').remove();
+    }
+}
+
+//日历主体部分
+function newCalendar() {
+    var month = currentDate.getMonth();
+    var year = currentDate.getFullYear();
+    var date = currentDate.getDate();
+    var thisMonthDay = new Date(year, month, 1);
+    var thisMonthFirstDay = thisMonthDay.getDay();
+    var thisMonthFirstDate = new Date(year, month, -thisMonthFirstDay - 6);
+    generateNav(year, month); //生成导航区域
+    generateTable(thisMonthFirstDate); //生成日历主体的日期区域
+    currentDate.setYear(year);
+    currentDate.setMonth(month);
+    //清空无日期区域
+    if ($('#dateTable tr:first-child td').text() == '') {
+        $('#dateTable tr:first-child td').remove();
+    }
+    return currentDate;
+}
 
 //设定导航区域
 function generateNav(year, month) {
@@ -154,42 +143,53 @@ function generateNav(year, month) {
     navMonth.innerText = (month + 1).toString();
 }
 
+//获取前或后天数的日期
+function getWantDay(status, today, day) {
+    if (status == 'next') {
+        return new Date((today.getTime() + 24 * 60 * 60 * 1000 * day));
+    } else if (status == 'before') {
+        return new Date((today.getTime() - 24 * 60 * 60 * 1000 * day));
+    } else {
+        return today;
+    }
+}
+
 //是否增加周处理函数
-function isAddWeekHandler(weekday, dateString) {
+function isAddWeekHandler(weekday, firstDate) {
     switch (weekday) {
         case 1:
-            var endDay = getWantDay('next', dateString, 6).getDate();
+            var endDate = getWantDay('next', firstDate, 6);
 
-            return endDay >= weekDayBegin && endDay <= weekDayEnd;
+            return endDate - dateEnd <= 0;
         case 2:
-            var beginDay = getWantDay('before', dateString, 1).getDate();
-            var endDay = getWantDay('next', dateString, 5).getDate();
+            var beginDate = getWantDay('before', firstDate, 1);
+            var endDate = getWantDay('next', firstDate, 5);
 
-            return (beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd);
+            return beginDate - dateBegin >= 0 && endDate - dateEnd <= 0;
         case 3:
-            var beginDay = getWantDay('before', dateString, 2).getDate();
-            var endDay = getWantDay('next', dateString, 4).getDate();
+            var beginDate = getWantDay('before', firstDate, 2);
+            var endDate = getWantDay('next', firstDate, 4);
 
-            return (beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd);
+            return beginDate - dateBegin >= 0 && endDate - dateEnd <= 0;
         case 4:
-            var beginDay = getWantDay('before', dateString, 3).getDate();
-            var endDay = getWantDay('next', dateString, 3).getDate();
+            var beginDate = getWantDay('before', firstDate, 3);
+            var endDate = getWantDay('next', firstDate, 3);
 
-            return (beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd);
+            return beginDate - dateBegin >= 0 && endDate - dateEnd <= 0;
         case 5:
-            var beginDay = getWantDay('before', dateString, 4).getDate();
-            var endDay = getWantDay('next', dateString, 2).getDate();
+            var beginDate = getWantDay('before', firstDate, 4);
+            var endDate = getWantDay('next', firstDate, 2);
 
-            return (beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd);
+            return beginDate - dateBegin >= 0 && endDate - dateEnd <= 0;
         case 6:
-            var beginDay = getWantDay('before', dateString, 5).getDate();
-            var endDay = getWantDay('next', dateString, 1).getDate();
+            var beginDate = getWantDay('before', firstDate, 5);
+            var endDate = getWantDay('next', firstDate, 1);
 
-            return (beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd);
+            return beginDate - dateBegin >= 0 && endDate - dateEnd <= 0;
         case 0:
-            var beginDay = getWantDay('before', dateString, 6).getDate();
+            var beginDate = getWantDay('before', firstDate, 6);
 
-            return beginDay >= weekDayBegin && beginDay <= weekDayEnd;
+            return beginDate - dateBegin >= 0;
     }
 }
 
@@ -203,7 +203,7 @@ function generateTable(firstDate) {
     }
     var date = firstDate.getDate();
 
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < 7; i++) {
         var newRow = document.createElement("tr");
 
         for (var j = 0; j < 7; j++) {
@@ -223,43 +223,37 @@ function generateTable(firstDate) {
             //设置Node的id，便于后期操作
             newDate.setAttribute("id", formatDate(dateInfo));
 
+            newDate.setAttribute("data-dateInfo", dateInfo);
+
+            //只显示当月的日期
             if ($('#month').text() == month) {
                 newDate.innerText = date;
 
                 //判断按天还是按周
                 if (dayChosed) {
-                    //判断月份范围
-                    if (month >= monthBegin && month <= monthEnd) {
-                        //判断日期范围
-                        if (date >= dayDayBegin && date <= dayDayEnd) {
-                            newDate.setAttribute("class", "date");
-                            //设置点击事件，防止被解释为数字，用转义字符加上双引号
-                            newDate.setAttribute("onclick", "generateToday(\"" + dateInfo + "\")");
-                        } else {
-                            newDate.setAttribute("class", "date-disabled");
-                        }
+                    if (firstDate - dateBegin >= 0 && firstDate - dateEnd <= 0) {
+                        newDate.setAttribute("class", "date");
 
+                        $(newDate).on('click', function() {
+                            generateToday($(this).attr('data-dateInfo'));
+                        });
                     } else {
                         newDate.setAttribute("class", "date-disabled");
                     }
                 } else {
-                    //判断月份范围
-                    if (month >= monthBegin && month <= monthEnd) {
-                        //判断日期范围
-                        if (date >= weekDayBegin && date <= weekDayEnd) {
-                            var weekday = new Date(dateInfo).getDay()
-                                //判断是否添加周处理事件
-                            if (isAddWeekHandler(weekday, dateInfo)) {
-                                if (weekday == 0) {
-                                    $(newDate).append("<div>交车</div>");
-                                }
-                                newDate.setAttribute("class", "date");
-                                //设置点击事件，防止被解释为数字，用转义字符加上双引号
-                                newDate.setAttribute("onclick", "generateWeek(\"" + dateInfo + "\")");
-                            } else {
-                                newDate.setAttribute("class", "date-disabled");
+                    var weekday = firstDate.getDay();
+
+                    if (firstDate - dateBegin >= 0 && firstDate - dateEnd <= 0) {
+                        if (isAddWeekHandler(weekday, firstDate)) {
+                            if (weekday == 0) {
+                                $(newDate).append("<div>交车</div>");
                             }
 
+                            newDate.setAttribute("class", "date");
+
+                            $(newDate).on('click', function() {
+                                generateWeek($(this).attr('data-dateInfo'));
+                            });
                         } else {
                             newDate.setAttribute("class", "date-disabled");
                         }
@@ -268,7 +262,6 @@ function generateTable(firstDate) {
                         newDate.setAttribute("class", "date-disabled");
                     }
                 }
-
             } else {
                 newDate.innerText = '';
             }
@@ -280,10 +273,6 @@ function generateTable(firstDate) {
     }
 }
 
-//格式化日期
-function formatDate(date) {
-    return date.split('/').join('');
-};
 
 //设置当前日期
 function setCurrentDate(dateString) {
@@ -292,13 +281,18 @@ function setCurrentDate(dateString) {
 
 //清除按天样式
 function cleardayStyle() {
-    $("[onclick*='generateToday']").removeClass('todayTd');
-    $("[onclick*='generateToday']").children().remove();
+    $(".todayTd").children().remove();
+    $(".todayTd").removeClass('todayTd');
 }
 
 //按天事件处理函数
 function generateToday(dateString) {
     var dateInfo = formatDate(dateString);
+
+    console.log(dateString);
+
+    //选择日期后启动提交按钮
+    changeHasChosedDate(true);
 
     //清除样式
     cleardayStyle();
@@ -312,167 +306,174 @@ function generateToday(dateString) {
     //设置当前日期
     setCurrentDate(dateString);
 
+    //清除默认日期
+    defaultDay = formatDate(currentDate.toLocaleDateString());
+
     //每次选中的日期
     console.log(currentDate.toLocaleDateString());
 }
 
-//获取前或后天数的日期
-function getWantDay(status, today, day) {
-    if (status == 'next') {
-        return new Date((new Date(today).getTime() + 24 * 60 * 60 * 1000 * day));
-    } else if (status == 'before') {
-        return new Date((new Date(today).getTime() - 24 * 60 * 60 * 1000 * day));
-    } else {
-        return today;
-    }
-}
-
 //清除按周样式
 function clearWeekStyle() {
-    $("[onclick*='generateWeek']").removeClass('weekTd');
-    $("[onclick*='generateWeek']").children().remove();
+    $("#calendar .weekTd").removeClass('weekTd');
+    $("#calendar tr td:last-child").children().remove();
 }
 
 //按周事件处理函数
 function generateWeek(dateString) {
+    //格式化选中的日期
     var dateInfo = formatDate(dateString);
 
-    //周几
-    var weekday = new Date(dateString).getDay();
+    //选中日期后启动提交按钮
+    changeHasChosedDate(true);
 
-    //能否设置当前日期
-    var canSetCurDay = false;
+    //选中的日期
+    var date = new Date(dateString);
+
+    //周几
+    var weekday = date.getDay();
 
     //设置选中周样式
     switch (weekday) {
         case 1:
-            var endDay = getWantDay('next', dateString, 6).getDate();
+            var endDate = getWantDay('next', date, 6);
 
-            if (endDay >= weekDayBegin && endDay <= weekDayEnd) {
+            if (endDate - dateEnd <= 0) {
                 clearWeekStyle();
                 $('#' + dateInfo).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 1).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 2).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 3).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 4).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 5).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 6).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 6).toLocaleDateString())).append('<div>交车</div>');
+                $('#' + formatDate(getWantDay('next', date, 1).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 2).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 3).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 4).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 5).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 6).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 6).toLocaleDateString())).append('<div>交车</div>');
             }
 
-            weekLastDay = getWantDay('next', dateString, 6);
+            weekLastDay = getWantDay('next', date, 6);
             break;
         case 2:
-            var beginDay = getWantDay('before', dateString, 1).getDate();
-            var endDay = getWantDay('next', dateString, 5).getDate();
+            var beginDate = getWantDay('before', date, 1);
+            var endDate = getWantDay('next', date, 5);
 
-            if ((beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd)) {
+            if (beginDate - dateBegin >= 0 && endDate - dateEnd <= 0) {
                 clearWeekStyle();
-                $('#' + formatDate(getWantDay('before', dateString, 1).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 1).toLocaleDateString())).addClass('weekTd');
                 $('#' + dateInfo).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 1).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 2).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 3).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 4).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 5).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 5).toLocaleDateString())).append('<div>交车</div>');
+                $('#' + formatDate(getWantDay('next', date, 1).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 2).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 3).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 4).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 5).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 5).toLocaleDateString())).append('<div>交车</div>');
             }
 
-            weekLastDay = getWantDay('next', dateString, 5);
+            weekLastDay = getWantDay('next', date, 5);
             break;
         case 3:
-            var beginDay = getWantDay('before', dateString, 2).getDate();
-            var endDay = getWantDay('next', dateString, 4).getDate();
+            var beginDate = getWantDay('before', date, 2);
+            var endDate = getWantDay('next', date, 4);
 
-            if ((beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd)) {
+            if (beginDate - dateBegin >= 0 && endDate - dateEnd <= 0) {
                 clearWeekStyle();
-                $('#' + formatDate(getWantDay('before', dateString, 1).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('before', dateString, 2).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 1).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 2).toLocaleDateString())).addClass('weekTd');
                 $('#' + dateInfo).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 1).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 2).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 3).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 4).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 4).toLocaleDateString())).append('<div>交车</div>');
+                $('#' + formatDate(getWantDay('next', date, 1).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 2).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 3).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 4).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 4).toLocaleDateString())).append('<div>交车</div>');
             }
 
-            weekLastDay = getWantDay('next', dateString, 4);
+            weekLastDay = getWantDay('next', date, 4);
             break;
         case 4:
-            var beginDay = getWantDay('before', dateString, 3).getDate();
-            var endDay = getWantDay('next', dateString, 3).getDate();
+            var beginDate = getWantDay('before', date, 3);
+            var endDate = getWantDay('next', date, 3);
 
-            if ((beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd)) {
+            if (beginDate - dateBegin >= 0 && endDate - dateEnd <= 0) {
                 clearWeekStyle();
-                $('#' + formatDate(getWantDay('before', dateString, 1).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('before', dateString, 2).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('before', dateString, 3).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 1).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 2).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 3).toLocaleDateString())).addClass('weekTd');
                 $('#' + dateInfo).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 1).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 2).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 3).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 3).toLocaleDateString())).append('<div>交车</div>');
+                $('#' + formatDate(getWantDay('next', date, 1).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 2).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 3).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 3).toLocaleDateString())).append('<div>交车</div>');
             }
 
-            weekLastDay = getWantDay('next', dateString, 3);
+            weekLastDay = getWantDay('next', date, 3);
             break;
         case 5:
-            var beginDay = getWantDay('before', dateString, 4).getDate();
-            var endDay = getWantDay('next', dateString, 2).getDate();
+            var beginDate = getWantDay('before', date, 4);
+            var endDate = getWantDay('next', date, 2);
 
-            if ((beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd)) {
+            if (beginDate - dateBegin >= 0 && endDate - dateEnd <= 0) {
                 clearWeekStyle();
-                $('#' + formatDate(getWantDay('before', dateString, 1).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('before', dateString, 2).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('before', dateString, 3).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('before', dateString, 4).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 1).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 2).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 3).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 4).toLocaleDateString())).addClass('weekTd');
                 $('#' + dateInfo).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 1).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 2).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 2).toLocaleDateString())).append('<div>交车</div>');
+                $('#' + formatDate(getWantDay('next', date, 1).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 2).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 2).toLocaleDateString())).append('<div>交车</div>');
             }
 
-            weekLastDay = getWantDay('next', dateString, 2);
+            weekLastDay = getWantDay('next', date, 2);
             break;
         case 6:
-            var beginDay = getWantDay('before', dateString, 5).getDate();
-            var endDay = getWantDay('next', dateString, 1).getDate();
+            var beginDate = getWantDay('before', date, 5);
+            var endDate = getWantDay('next', date, 1);
 
-            if ((beginDay >= weekDayBegin && beginDay <= weekDayEnd) && (endDay >= weekDayBegin && endDay <= weekDayEnd)) {
+            if (beginDate - dateBegin >= 0 && endDate - dateEnd <= 0) {
                 clearWeekStyle();
-                $('#' + formatDate(getWantDay('before', dateString, 1).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('before', dateString, 2).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('before', dateString, 3).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('before', dateString, 4).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('before', dateString, 5).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 1).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 2).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 3).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 4).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 5).toLocaleDateString())).addClass('weekTd');
                 $('#' + dateInfo).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 1).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('next', dateString, 1).toLocaleDateString())).append('<div>交车</div>');
+                $('#' + formatDate(getWantDay('next', date, 1).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('next', date, 1).toLocaleDateString())).append('<div>交车</div>');
             }
 
-            weekLastDay = getWantDay('next', dateString, 1);
+            weekLastDay = getWantDay('next', date, 1);
             break;
         case 0:
-            var beginDay = getWantDay('before', dateString, 6).getDate();
+            var beginDate = getWantDay('before', date, 6);
 
-            if (beginDay >= weekDayBegin && beginDay <= weekDayEnd) {
+            if (beginDate - dateBegin >= 0) {
                 clearWeekStyle();
-                $('#' + formatDate(getWantDay('before', dateString, 1).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('before', dateString, 2).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('before', dateString, 3).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('before', dateString, 4).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('before', dateString, 5).toLocaleDateString())).addClass('weekTd');
-                $('#' + formatDate(getWantDay('before', dateString, 6).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 1).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 2).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 3).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 4).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 5).toLocaleDateString())).addClass('weekTd');
+                $('#' + formatDate(getWantDay('before', date, 6).toLocaleDateString())).addClass('weekTd');
                 $('#' + dateInfo).addClass('weekTd');
                 $('#' + dateInfo).append('<div>交车</div>');
             }
 
-            weekLastDay = getWantDay('next', dateString, 0);
+            weekLastDay = getWantDay('next', date, 0);
             break;
     }
 
+    $('.weekTd').each(function(idx) {
+        if (!$(this).hasClass('date')) {
+            $(this).removeClass('weekTd');
+            $(this).empty();
+
+            if (idx == 6) {
+                $('#nextMonth').click();
+            }
+        }
+    });
+
     //设置当前日期
-    setCurrentDate(dateString);
+    setCurrentDate(weekLastDay);
 
     //每次选中的日期
     // console.log(currentDate.toLocaleDateString());
@@ -481,20 +482,35 @@ function generateWeek(dateString) {
     console.log(weekLastDay.toLocaleDateString());
 }
 
-$('#showPara').on('click', function() {
-    if (dayChosed) {
-        alert('按天');
-        alert('按天时选中的日期 ' + currentDate.toLocaleDateString());
-    } else if (weekChosed) {
-        alert('按周');
-        alert('按周时的最后一天 ' + weekLastDay.toLocaleDateString());
-    }
+//启用提交按钮
+function changeHasChosedDate(status) {
+    hasChosedDate = status;
+}
 
-    if (acceptGetCar) {
-        alert('接受提前交车');
-    } else {
-        alert('不接受提前交车');
+var app = {
+    calendar: function(resDateBegin, resDateEnd) {
+        defaultDay = formatDate(new Date(resDateBegin).toLocaleDateString());
 
-    }
+        //自定义选择日期范围
+        dateBegin = new Date(resDateBegin.split('-').join('/'));
+        dateEnd = new Date(resDateEnd.split('-').join('/'));
 
-})
+        //初始生成日历
+        newCalendar();
+
+        defaultDaytHandler();
+
+        removeEmpty();
+    },
+
+    currentDate: currentDate.toLocaleDateString(),
+    weekLastDay: weekLastDay.toLocaleDateString(),
+    acceptGetCar: acceptGetCar,
+    dayChosed: dayChosed,
+    weekChosed: weekChosed
+};
+
+app.calendar('2017-08-03', '2017-09-23');
+
+// module.exports = app;
+// });
