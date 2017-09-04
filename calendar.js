@@ -103,6 +103,7 @@
         newCalendar();
         removeEmpty();
         changeHasChosedDate(false);
+        defaultWeek();
 
         app.setAppData();
     });
@@ -500,6 +501,14 @@
         return currentDate;
     }
 
+    function chooseWeek() {
+        $('.choose-week').click();
+    }
+
+    function defaultWeek() {
+        $('#dateTable tr .date').first().click();
+    }
+
     var app = {
         calendar: function(resDateBegin, resDateEnd) {
             defaultDay = formatDate(new Date(resDateBegin).toLocaleDateString());
@@ -517,6 +526,10 @@
 
             removeEmpty();
 
+            chooseWeek();
+
+            defaultWeek();
+
             this.setAppData();
         },
 
@@ -533,7 +546,7 @@
         weekChosed: weekChosed
     };
 
-    app.calendar('2017-09-03', '2017-11-9');
+    app.calendar('2017-09-06', '2017-11-9');
 
     console.log(app.selectedDay);
 
