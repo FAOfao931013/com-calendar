@@ -7,7 +7,7 @@
     var weekLastDay = new Date();
 
     //是否接受提前交车
-    var acceptGetCar = false;
+    var acceptGetCar = true;
 
     //默认的日期
     var defaultDay;
@@ -45,6 +45,11 @@
         } else {
             if (weekLastDay) {
                 $('#' + formatDate(weekLastDay.toLocaleDateString())).click();
+                showFirstWeek();
+
+                $('#dateTable tr:first-child').bind('click', function() {
+                    showFirstWeek();
+                });
             }
         }
 
@@ -66,6 +71,11 @@
         } else {
             if (weekLastDay) {
                 $('#' + formatDate(weekLastDay.toLocaleDateString())).click();
+                showFirstWeek();
+
+                $('#dateTable tr:first-child').bind('click', function() {
+                    showFirstWeek();
+                });
             }
         }
 
@@ -87,6 +97,9 @@
         removeEmpty();
         defaultDaytHandler();
 
+        $(this).hide();
+        csw.show();
+
         app.setAppData();
     });
 
@@ -104,6 +117,9 @@
         removeEmpty();
         changeHasChosedDate(false);
         defaultWeek();
+
+        $(this).hide();
+        csd.show();
 
         app.setAppData();
     });
@@ -185,8 +201,6 @@
     function generateToday(dateString) {
         var dateInfo = formatDate(dateString);
 
-        console.log(dateString);
-
         //选择日期后启动提交按钮
         changeHasChosedDate(true);
 
@@ -245,7 +259,6 @@
                     $('#' + formatDate(getWantDay('next', date, 4).toLocaleDateString())).addClass('weekTd');
                     $('#' + formatDate(getWantDay('next', date, 5).toLocaleDateString())).addClass('weekTd');
                     $('#' + formatDate(getWantDay('next', date, 6).toLocaleDateString())).addClass('weekTd');
-                    $('#' + formatDate(getWantDay('next', date, 6).toLocaleDateString())).append('<div>交车</div>');
                 }
 
                 weekLastDay = getWantDay('next', date, 6);
@@ -263,7 +276,6 @@
                     $('#' + formatDate(getWantDay('next', date, 3).toLocaleDateString())).addClass('weekTd');
                     $('#' + formatDate(getWantDay('next', date, 4).toLocaleDateString())).addClass('weekTd');
                     $('#' + formatDate(getWantDay('next', date, 5).toLocaleDateString())).addClass('weekTd');
-                    $('#' + formatDate(getWantDay('next', date, 5).toLocaleDateString())).append('<div>交车</div>');
                 }
 
                 weekLastDay = getWantDay('next', date, 5);
@@ -281,7 +293,6 @@
                     $('#' + formatDate(getWantDay('next', date, 2).toLocaleDateString())).addClass('weekTd');
                     $('#' + formatDate(getWantDay('next', date, 3).toLocaleDateString())).addClass('weekTd');
                     $('#' + formatDate(getWantDay('next', date, 4).toLocaleDateString())).addClass('weekTd');
-                    $('#' + formatDate(getWantDay('next', date, 4).toLocaleDateString())).append('<div>交车</div>');
                 }
 
                 weekLastDay = getWantDay('next', date, 4);
@@ -299,7 +310,6 @@
                     $('#' + formatDate(getWantDay('next', date, 1).toLocaleDateString())).addClass('weekTd');
                     $('#' + formatDate(getWantDay('next', date, 2).toLocaleDateString())).addClass('weekTd');
                     $('#' + formatDate(getWantDay('next', date, 3).toLocaleDateString())).addClass('weekTd');
-                    $('#' + formatDate(getWantDay('next', date, 3).toLocaleDateString())).append('<div>交车</div>');
                 }
 
                 weekLastDay = getWantDay('next', date, 3);
@@ -317,7 +327,6 @@
                     $('#' + dateInfo).addClass('weekTd');
                     $('#' + formatDate(getWantDay('next', date, 1).toLocaleDateString())).addClass('weekTd');
                     $('#' + formatDate(getWantDay('next', date, 2).toLocaleDateString())).addClass('weekTd');
-                    $('#' + formatDate(getWantDay('next', date, 2).toLocaleDateString())).append('<div>交车</div>');
                 }
 
                 weekLastDay = getWantDay('next', date, 2);
@@ -335,7 +344,6 @@
                     $('#' + formatDate(getWantDay('before', date, 5).toLocaleDateString())).addClass('weekTd');
                     $('#' + dateInfo).addClass('weekTd');
                     $('#' + formatDate(getWantDay('next', date, 1).toLocaleDateString())).addClass('weekTd');
-                    $('#' + formatDate(getWantDay('next', date, 1).toLocaleDateString())).append('<div>交车</div>');
                 }
 
                 weekLastDay = getWantDay('next', date, 1);
@@ -352,7 +360,6 @@
                     $('#' + formatDate(getWantDay('before', date, 5).toLocaleDateString())).addClass('weekTd');
                     $('#' + formatDate(getWantDay('before', date, 6).toLocaleDateString())).addClass('weekTd');
                     $('#' + dateInfo).addClass('weekTd');
-                    $('#' + dateInfo).append('<div>交车</div>');
                 }
 
                 weekLastDay = getWantDay('next', date, 0);
@@ -427,6 +434,8 @@
 
                 newDate.setAttribute("data-dateInfo", dateInfo);
 
+                newDate.setAttribute("data-today", date);
+
                 //只显示当月的日期
                 if ($('#month').text() == month) {
                     newDate.innerText = date;
@@ -447,9 +456,9 @@
 
                         if (firstDate - dateBegin >= 0 && firstDate - dateEnd <= 0) {
                             if (isAddWeekHandler(weekday, firstDate)) {
-                                if (weekday == 0) {
-                                    $(newDate).append("<div>交车</div>");
-                                }
+                                // if (weekday == 0) {
+                                //     $(newDate).append("<div>交车</div>");
+                                // }
 
                                 newDate.setAttribute("class", "date");
 
@@ -478,11 +487,11 @@
     //移除空的日期
     function removeEmpty() {
         if ($('#dateTable tr:last-child td').text() == '') {
-            $('#dateTable tr:last-child td').remove();
+            $('#dateTable tr:last-child').remove();
         }
 
         if ($('#dateTable tr:first-child td').text() == '') {
-            $('#dateTable tr:first-child td').remove();
+            $('#dateTable tr:first-child').remove();
         }
     }
 
@@ -505,12 +514,40 @@
         $('.choose-week').click();
     }
 
+    function showFirstWeek() {
+        if ($('#dateTable tr:first-child .weekTd').length > 0) {
+            $('#dateTable tr:first-child td').each(function(idx, item) {
+                $(item).text($(item).attr('data-today'));
+                $(item).addClass('date weekTd');
+                $(item).bind('click', function() {
+                    generateWeek($(item).attr('data-dateInfo'));
+                });
+            });
+        }
+    }
+
     function defaultWeek() {
-        $('#dateTable tr .date').first().click();
+        if ($('#dateTable tr .date').length > 0) {
+            $('#dateTable tr .date').first().click();
+            showFirstWeek();
+        } else {
+            $('#nextMonth').click();
+        }
+    }
+
+    function disCalendar() {
+        $('#dateTable tr td').unbind();
+        $('#dateTable tr td').removeClass('weekTd');
+        $('#dateTable tr td').removeClass('date');
+        $('#dateTable tr td').addClass('date-disabled');
+        $('#lastMonth').unbind();
+        $('#nextMonth').unbind();
+        $('.choose-week').unbind();
+        $('.choose-day').unbind();
     }
 
     var app = {
-        calendar: function(resDateBegin, resDateEnd) {
+        calendar: function(resDateBegin, resDateEnd, disClick) {
             defaultDay = formatDate(new Date(resDateBegin).toLocaleDateString());
 
             //自定义选择日期范围
@@ -518,6 +555,18 @@
             dateEnd = new Date(resDateEnd.split('-').join('/'));
 
             currentDate = dateBegin;
+
+            if (disClick) {
+                //初始生成日历
+                newCalendar();
+                removeEmpty();
+                chooseWeek();
+
+                disCalendar();
+
+                this.selectedDay = '';
+                return;
+            }
 
             //初始生成日历
             newCalendar();
@@ -546,7 +595,7 @@
         weekChosed: weekChosed
     };
 
-    app.calendar('2017-09-06', '2017-11-9');
+    app.calendar('2017-09-15', '2017-11-05', false);
 
     console.log(app.selectedDay);
 

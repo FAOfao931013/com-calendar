@@ -1,17 +1,13 @@
-* {
-    font-family: "微软雅黑 Light";
-    font-size: 18px;
-    color: #000;
-    text-align: center;
-    margin: 0;
-}
-
 .float-left {
     float: left;
 }
 
 .float-right {
     float: right;
+}
+
+.hidden {
+    display: none;
 }
 
 .span-left {
@@ -23,7 +19,7 @@
 
 .span-middle {
     position: absolute;
-    left: 46%;
+    left: 28%;
     transform: translate(-50%, -50%);
 }
 
@@ -42,6 +38,11 @@
     position: relative;
     padding: 40px 0;
     margin: 0 20px;
+    font-size: 18px;
+}
+
+.calendar-wrap {
+    position: relative;
 }
 
 .choose-month {
@@ -49,9 +50,21 @@
 }
 
 .main-calendar {
-    width: 640px;
-    height: 440px;
+    width: 630px;
+    display: inline-block;
+    padding: 20px 0;
+    float: left;
+    border-bottom: 1px solid #eee;
+    height: 420px;
     background-color: #eeeeee;
+    position: relative;
+}
+
+.day-week-choose {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    margin: 0 10px 10px 0;
 }
 
 #calendar {
@@ -106,17 +119,13 @@ thead tr td {
 }
 
 .default-choose {
-    padding: 8px 18px;
-    display: inline-block;
-    background-color: #fff;
-    color: #999;
-    border: solid 1px #999;
-    font-size: 16px;
+    font-size: 14px;
+    border: solid 1px #2b70ea;
+    padding: 2px 5px;
 }
 
 .choose-way {
     color: #000;
-    border: solid 2px #e4393c;
     position: relative;
 }
 
