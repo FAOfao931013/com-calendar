@@ -536,14 +536,22 @@
     }
 
     function disCalendar() {
-        $('#dateTable tr td').unbind();
         $('#dateTable tr td').removeClass('weekTd');
         $('#dateTable tr td').removeClass('date');
         $('#dateTable tr td').addClass('date-disabled');
-        $('#lastMonth').unbind();
-        $('#nextMonth').unbind();
-        $('.choose-week').unbind();
-        $('.choose-day').unbind();
+        $('#dateTable tr td').unbind();
+
+        $('#lastMonth').attr('disabled', true);
+        $('#nextMonth').attr('disabled', true);
+        $('.choose-week').attr('disabled', true);
+        $('.choose-day').attr('disabled', true);
+    }
+
+    function startCalendar() {
+        $('#lastMonth').attr('disabled', false);
+        $('#nextMonth').attr('disabled', false);
+        $('.choose-week').attr('disabled', false);
+        $('.choose-day').attr('disabled', false);
     }
 
     var app = {
@@ -578,6 +586,8 @@
             chooseWeek();
 
             defaultWeek();
+
+            startCalendar();
 
             this.setAppData();
         },

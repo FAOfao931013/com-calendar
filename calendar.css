@@ -122,6 +122,7 @@ thead tr td {
     font-size: 14px;
     border: solid 1px #2b70ea;
     padding: 2px 5px;
+    background: transparent;
 }
 
 .choose-way {
@@ -143,6 +144,8 @@ thead tr td {
 .ch-month {
     cursor: pointer;
     font-size: 24px;
+    background: transparent;
+    border: none;
 }
 
 .ch-month:hover {
