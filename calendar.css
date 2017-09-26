@@ -10,6 +10,10 @@
     display: none;
 }
 
+.year-month-font {
+    font-size: 20px;
+}
+
 .span-left {
     position: absolute;
     left: 0;
@@ -28,6 +32,15 @@
     right: 0;
     top: 50%;
     transform: translateY(-50%);
+    text-align: right;
+}
+
+.right-tip {
+    font-size: 18px;
+    position: absolute;
+    right: 25%;
+    bottom: 0;
+    transform: translateY(-50%);
 }
 
 .margin-bottom {
@@ -36,17 +49,18 @@
 
 .choose-wap {
     position: relative;
-    padding: 40px 0;
+    padding: 25px 0;
     margin: 0 20px;
-    font-size: 18px;
+    font-size: 20px;
 }
 
 .calendar-wrap {
     position: relative;
+    font-size: 18px;
 }
 
 .choose-month {
-    padding: 0 20px 40px;
+    padding: 0 20px 35px;
 }
 
 .main-calendar {
@@ -62,9 +76,8 @@
 
 .day-week-choose {
     position: absolute;
-    right: 0;
-    bottom: 0;
-    margin: 0 10px 10px 0;
+    right: 2%;
+    bottom: 2%;
 }
 
 #calendar {
@@ -82,9 +95,8 @@ td {
 .weekTd,
 .todayTd div,
 .weekTd div {
-    background-color: #ff2e2e;
+    background-color: #2ea8ff;
     color: #fff;
-    font-size: 16px;
 }
 
 .weekTd {
@@ -119,7 +131,7 @@ thead tr td {
 }
 
 .default-choose {
-    font-size: 14px;
+    font-size: 18px;
     border: solid 1px #2b70ea;
     padding: 2px 5px;
     background: transparent;
