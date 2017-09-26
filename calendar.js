@@ -28,6 +28,7 @@
         acceptGetCar = $(this).prop('checked');
 
         app.setAppData();
+
     });
 
     //上个月切换按钮监听
