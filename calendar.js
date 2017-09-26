@@ -27,8 +27,14 @@
     $('#getCar').on('change', function() {
         acceptGetCar = $(this).prop('checked');
 
-        app.setAppData();
+        if ($(this).prop('checked')) {
+            $('.right-tip').show();
+        } else {
+            $('.right-tip').hide();
+        }
 
+
+        app.setAppData();
     });
 
     //上个月切换按钮监听
