@@ -27,6 +27,12 @@
     $('#getCar').on('change', function() {
         acceptGetCar = $(this).prop('checked');
 
+        if ($(this).prop('checked')) {
+            $('.right-tip').show();
+        } else {
+            $('.right-tip').hide();
+        }
+
         app.setAppData();
     });
 
