@@ -33,6 +33,7 @@
             $('.right-tip').hide();
         }
 
+
         app.setAppData();
     });
 
