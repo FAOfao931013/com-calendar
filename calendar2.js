@@ -23,6 +23,12 @@
     //是否选择了日期
     var hasChosedDate = false;
 
+    //提交按钮事件
+    $('#submitBtn').on('click', function() {
+        alert(acceptGetCar);
+        alert(currentDate.toLocaleDateString());
+    });
+
     //监听是否接受提前交车
     $('#getCar').on('change', function() {
         acceptGetCar = $(this).prop('checked');

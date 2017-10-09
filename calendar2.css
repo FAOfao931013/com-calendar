@@ -65,9 +65,8 @@
 
 .main-calendar {
     width: 630px;
-    display: inline-block;
     padding: 28px 0;
-    float: left;
+    margin: 0 auto;
     border-bottom: 1px solid #eee;
     height: 420px;
     background-color: #eeeeee;
@@ -167,4 +166,12 @@ thead tr td {
 
 #month {
     color: #888;
+}
+
+#submitBtn {
+    position: absolute;
+    bottom: -8%;
+    right: 0;
+    padding: 4px 20px;
+    font-size: 15px;
 }

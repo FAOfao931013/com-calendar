@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<!--@author SongYuting -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Calendar by Soyaine</title>
+    <link rel="stylesheet" href="./calendar2.css">
+</head>
+<body>
+    <div class="main-calendar">
+        <div class="choose-wap">
+            <span class="span-left">选择提车时间</span>
+
+            <span class="span-right">
+                <input id="getCar" type="checkbox" checked>
+                <span>可接受提前交车</span>
+            </span>
+        </div>
+
+        <div class="choose-month">
+            <span class="float-left">
+                <label id="year" class="year-month-font"></label>
+                <span class="year-month-font">/</span>
+                <label id="month" class="year-month-font"></label>
+            </span>
+
+            <span class="float-right">
+                <button class="ch-month" id="lastMonth"><</button>
+                <button class="ch-month" id="nextMonth">></button>
+            </span>
+        </div>
+
+        <div class="calendar-wrap">
+            <div id="calendar">
+                <table id="dateZone" border="0" cellspacing="0" cellpadding="0">
+                    <thead>
+                        <tr>
+                            <td>一</td>
+                            <td>二</td>
+                            <td>三</td>
+                            <td>四</td>
+                            <td>五</td>
+                            <td>六</td>
+                            <td>日</td>
+                        </tr>
+                    </thead>
+                    <tbody id="dateTable">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="right-tip">您选择了可接受提前交付，我们将尽快交付您的爱车。</div>
+
+        <div class="day-week-choose">
+            <button class="choose-week default-choose">
+                切换至按周选择
+            </button>
+
+            <button class="choose-day default-choose choose-way hidden">
+                切换至按天选择
+            </button>
+        </div>
+
+
+        <button id="submitBtn">提交</button>
+    </div>
+</body>
+<script type="text/javascript" src="./lib/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="./calendar2.js"></script>
+</html>
