@@ -583,6 +583,28 @@
         $('.choose-day').attr('disabled', false);
     }
 
+    function formatSelectedDay(dateString) {
+        dateString = dateString.toString();
+        dateString = dateString.replace(/年/, '/');
+        dateString = dateString.replace(/月/, '/');
+        dateString = dateString.replace(/日/, '');
+
+        var aa = dateString.substr(0, 1);
+
+        if (aa.charCodeAt() == 8206) {
+            for (var i = 0; i < dateString.length; i++) {
+                 var newstr =  dateString.substr(i, 1);
+                    if(newstr == aa) {
+                        dateString = dateString.replace(newstr, '')
+                    }
+            }
+        }
+
+        dateString = new Date(dateString).getTime();
+
+        return dateString;
+    }
+
     var app = {
         calendar: function(resDateBegin, resDateEnd, disClick) {
             defaultDay = formatDate(new Date(resDateBegin).toLocaleDateString());
@@ -622,13 +644,13 @@
         },
 
         setAppData: function() {
-            this.selectedDay = currentDate.toLocaleDateString().split('/').join('-');
+            this.selectedDay = formatSelectedDay(currentDate.toLocaleDateString());
             this.acceptGetCar = acceptGetCar;
             this.dayChosed = dayChosed;
             this.weekChosed = weekChosed;
         },
 
-        selectedDay: currentDate.toLocaleDateString(),
+        selectedDay: formatSelectedDay(currentDate.toLocaleDateString()),
         acceptGetCar: acceptGetCar,
         dayChosed: dayChosed,
         weekChosed: weekChosed
